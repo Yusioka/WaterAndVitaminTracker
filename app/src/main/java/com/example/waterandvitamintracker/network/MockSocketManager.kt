@@ -39,9 +39,17 @@ class MockSocketManager(private val dispatcher: CoroutineDispatcher = Dispatcher
         messageJob?.cancel()
         messageJob = scope.launch {
             try {
+                val messages = listOf(
+                    "Time to drink a glass of water!",
+                    "Did you take your vitamins today?",
+                    "Stay hydrated, stay healthy!",
+                    "Great progress! Keep it up.",
+                    "Your body needs water to function perfectly."
+                )
                 while (isActive) {
                     delay(4000)
-                    val json = """{"type":"reminder","text":"Time to drink water!","timestamp":${System.currentTimeMillis()}}"""
+                    val randomText = messages.random()
+                    val json = """{"type":"reminder","text":"$randomText","timestamp":${System.currentTimeMillis()}}"""
                     val msg = gson.fromJson(json, WsMessage::class.java)
                     onMessageHandler?.invoke(msg)
                 }

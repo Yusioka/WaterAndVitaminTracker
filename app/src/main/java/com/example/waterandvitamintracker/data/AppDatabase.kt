@@ -47,7 +47,7 @@ interface WaterDao {
     suspend fun updateSyncStatus(recordId: Int, status: String): Int
 }
 
-@Database(entities = [Vitamin::class, WaterRecord::class], version = 1, exportSchema = false)
+@Database(entities = [Vitamin::class, WaterRecord::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun vitaminDao(): VitaminDao
     abstract fun waterDao(): WaterDao

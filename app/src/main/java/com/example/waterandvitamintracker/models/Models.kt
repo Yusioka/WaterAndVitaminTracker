@@ -10,6 +10,7 @@ data class Vitamin(
     val dailyDosageMg: Int,
     val isEssential: Boolean,
     val category: String,
+    val isTaken: Boolean = false,
     val syncStatus: String = "pending"
 )
 
