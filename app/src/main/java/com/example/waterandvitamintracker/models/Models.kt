@@ -22,3 +22,9 @@ data class WaterRecord(
     val temperature: Float,
     val syncStatus: String = "pending"
 )
+
+data class WsMessage(
+    val type: String,
+    val text: String,
+    val timestamp: Long
+)

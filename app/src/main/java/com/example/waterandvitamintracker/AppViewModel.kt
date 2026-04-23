@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.waterandvitamintracker.data.AppRepository
 import com.example.waterandvitamintracker.models.Vitamin
 import com.example.waterandvitamintracker.models.WaterRecord
+import com.example.waterandvitamintracker.models.WsMessage
+import com.example.waterandvitamintracker.network.MockSocketManager
+import com.example.waterandvitamintracker.network.SocketState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -14,11 +18,33 @@ import kotlin.random.Random
 
 class AppViewModel(private val repository: AppRepository) : ViewModel() {
 
+    private val socketManager = MockSocketManager()
+    val socketState: StateFlow<SocketState> = socketManager.socketState
+    val wsMessages = MutableStateFlow<List<WsMessage>>(emptyList())
+
     val vitamins: StateFlow<List<Vitamin>> = repository.allVitamins
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val waterRecords: StateFlow<List<WaterRecord>> = repository.allWaterRecords
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    init {
+        socketManager.onMessage { msg ->
+            wsMessages.value = wsMessages.value + msg
+        }
+    }
+
+    fun connectWs() {
+        socketManager.connect("wss://mock.server")
+    }
+
+    fun disconnectWs() {
+        socketManager.disconnect()
+    }
+
+    fun forceReconnect() {
+        socketManager.simulateDisconnectForReconnect()
+    }
 
     fun getVitaminDetails(id: Int): StateFlow<Vitamin?> {
         return repository.getVitaminById(id)

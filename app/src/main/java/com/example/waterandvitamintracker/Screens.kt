@@ -140,3 +140,47 @@ fun WaterScreen(viewModel: AppViewModel) {
         }
     }
 }
+
+@Composable
+fun StatsScreen(viewModel: AppViewModel) {
+    val socketState by viewModel.socketState.collectAsState()
+    val messages by viewModel.wsMessages.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(text = "Live Stats", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Connection: $socketState", style = MaterialTheme.typography.bodyLarge)
+        Button(onClick = { viewModel.forceReconnect() }, modifier = Modifier.padding(top = 8.dp)) {
+            Text("Simulate Connection Drop")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(messages.reversed()) { msg ->
+                Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(text = msg.type, style = MaterialTheme.typography.titleMedium)
+                        Text(text = msg.text, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(text = "User Profile", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Name: User123", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Daily Goal: 2000 ml", style = MaterialTheme.typography.bodyLarge)
+    }
+}

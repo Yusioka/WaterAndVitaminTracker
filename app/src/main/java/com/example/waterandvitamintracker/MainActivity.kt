@@ -6,8 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,6 +24,8 @@ import com.example.waterandvitamintracker.data.AppDatabase
 import com.example.waterandvitamintracker.data.MockApiService
 import com.example.waterandvitamintracker.data.AppRepository
 import com.example.waterandvitamintracker.navigation.Screen
+import com.example.waterandvitamintracker.ui.ProfileScreen
+import com.example.waterandvitamintracker.ui.StatsScreen
 import com.example.waterandvitamintracker.ui.VitaminDetailScreen
 import com.example.waterandvitamintracker.ui.VitaminListScreen
 import com.example.waterandvitamintracker.ui.WaterScreen
@@ -50,14 +56,29 @@ class MainActivity : ComponentActivity() {
 fun MainApp(factory: AppViewModelFactory) {
     val navController = rememberNavController()
     val appViewModel: AppViewModel = viewModel(factory = factory)
-    val items = listOf(Screen.Home, Screen.Water)
+    val items = listOf(Screen.Home, Screen.Water, Screen.Stats, Screen.Profile)
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                appViewModel.connectWs()
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                appViewModel.disconnectWs()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Scaffold(
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            if (currentRoute == Screen.Home.route || currentRoute == Screen.Water.route) {
+            if (items.any { it.route == currentRoute } || currentRoute == null) {
                 NavigationBar {
                     items.forEach { screen ->
                         NavigationBarItem(
@@ -107,6 +128,12 @@ fun MainApp(factory: AppViewModelFactory) {
             }
             composable(Screen.Water.route) {
                 WaterScreen(viewModel = appViewModel)
+            }
+            composable(Screen.Stats.route) {
+                StatsScreen(viewModel = appViewModel)
+            }
+            composable(Screen.Profile.route) {
+                ProfileScreen()
             }
         }
     }
