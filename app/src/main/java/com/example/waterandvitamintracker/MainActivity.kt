@@ -8,12 +8,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.room.Room
+import com.example.waterandvitamintracker.data.AppDatabase
+import com.example.waterandvitamintracker.data.MockApiService
+import com.example.waterandvitamintracker.data.AppRepository
 import com.example.waterandvitamintracker.navigation.Screen
 import com.example.waterandvitamintracker.ui.VitaminDetailScreen
 import com.example.waterandvitamintracker.ui.VitaminListScreen
@@ -22,17 +27,29 @@ import com.example.waterandvitamintracker.ui.WaterScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "tracker_database"
+        ).build()
+
+        val apiService = MockApiService()
+        val repository = AppRepository(database.vitaminDao(), database.waterDao(), apiService)
+        val factory = AppViewModelFactory(repository)
+
         setContent {
             MaterialTheme {
-                MainApp()
+                MainApp(factory)
             }
         }
     }
 }
 
 @Composable
-fun MainApp() {
+fun MainApp(factory: AppViewModelFactory) {
     val navController = rememberNavController()
+    val appViewModel: AppViewModel = viewModel(factory = factory)
     val items = listOf(Screen.Home, Screen.Water)
 
     Scaffold(
@@ -68,21 +85,28 @@ fun MainApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) {
-                VitaminListScreen(onVitaminClick = { id ->
-                    navController.navigate(Screen.Detail.createRoute(id))
-                })
+                VitaminListScreen(
+                    viewModel = appViewModel,
+                    onVitaminClick = { id ->
+                        navController.navigate(Screen.Detail.createRoute(id))
+                    }
+                )
             }
             composable(
                 route = Screen.Detail.route,
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getInt("itemId") ?: 0
-                VitaminDetailScreen(vitaminId = id, onBackClick = {
-                    navController.popBackStack()
-                })
+                VitaminDetailScreen(
+                    vitaminId = id,
+                    viewModel = appViewModel,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
             composable(Screen.Water.route) {
-                WaterScreen()
+                WaterScreen(viewModel = appViewModel)
             }
         }
     }
