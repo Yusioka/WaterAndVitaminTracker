@@ -69,5 +69,13 @@
 </div>
 <div align="center">
   <img width="864" height="1696" alt="image" src="https://github.com/user-attachments/assets/df58782c-753d-4f9e-9d87-968d406bc9b5" />
-  <p><b>Рис.3</b> - Видалений вітамін</p>
+  <p><b>Рис.4</b> - Видалений вітамін</p>
+</div>
+<div align="center">
+  <img width="897" height="1644" alt="image" src="https://github.com/user-attachments/assets/02749b03-f066-4a03-833a-ad69c0a0b44c" />
+  <p><b>Рис.5</b> - Екран додавання запису про випиту воду</p>
+</div>
+<div align="center">
+  <img width="836" height="1616" alt="image" src="https://github.com/user-attachments/assets/7ee71274-b577-4d68-bd95-e6ae4625481c" />
+  <p><b>Рис.6</b> - Доданий запис про випиту воду</p>
 </div>
