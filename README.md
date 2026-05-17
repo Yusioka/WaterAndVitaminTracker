@@ -47,3 +47,26 @@
 
 <img width="891" height="1712" alt="image" src="https://github.com/user-attachments/assets/36c062e6-10e5-406f-a10d-4c3a4925d1db" />
 <p align="center">Рис.3 - WaterScreen</p>
+
+### Зв'язок даних та UI
+Елементи інтерфейсу генеруються динамічно на основі моделей даних, уникаючи "хардкоду" безпосередньо в UI-компонентах.<br>
+Для імітації роботи з базою даних створено `MockData`: 
+```
+object MockData {
+    val vitamins = listOf(<br>
+        Vitamin(1, "Vitamin C", 500, true, "Immunity"),
+        Vitamin(2, "Vitamin D3", 2000, true, "Bones"),
+        // ...<br>
+    )<br>
+}
+```
+
+Генерація списку в інтерфейсі `VitaminListScreen`:
+```
+items(MockData.vitamins) { vitamin ->
+    Card(modifier = Modifier.clickable { onVitaminClick(vitamin.id) }) {
+        Text(text = vitamin.name)
+        Text(text = "Category: ${vitamin.category}")
+    }
+}
+```
